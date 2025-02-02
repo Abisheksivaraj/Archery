@@ -10,11 +10,10 @@ app.get("/", (req, res) => {
   return res.status(200).send({ message: "Welcome" });
 });
 
+const adminRoute = require("./src/Route/AdminRoute");
+app.use(adminRoute);
 
-
-
-const adminRoute = require("./src/Route/AdminRoute")
-app.use(adminRoute)
-
+const partRoutes = require("./src/Route/PartRoute");
+app.use(partRoutes);
 
 module.exports = app;

@@ -1,26 +1,33 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import JsBarcode from "jsbarcode";
 import logoImage from "../assets/companyLogo.jpg";
+import axios from "axios";
+import { Toaster, toast } from "react-hot-toast";
 
 const Admin = () => {
-  const [partName, setPartName] = useState("");
-  const [partNo, setPartNo] = useState("");
-  const [quantity, setQuantity] = useState("");
+  const [formData, setFormData] = useState({
+    partName: "",
+    partNo: "",
+    quantity: "",
+  });
   const [barcode, setBarcode] = useState("");
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    if (name === "part-name") setPartName(value);
-    else if (name === "part-no") setPartNo(value);
-    else if (name === "quantity") setQuantity(value);
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = () => {
-    console.log({ partName, partNo, quantity });
-  };
-
-  const generatePreview = () => {
-    setBarcode(partNo);
+  const handleSubmit = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost:5555/addPart",
+        formData
+      );
+      toast.success(response.data.message); // Show success toast
+      setBarcode(formData.partNo);
+      setFormData({ partName: "", partNo: "", quantity: "" });
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Error saving part"); // Show error toast
+    }
   };
 
   const generateBarcode = () => {
@@ -32,20 +39,18 @@ const Admin = () => {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     generateBarcode();
   }, [barcode]);
 
   return (
-    <div className=" bg-gradient-to-br  from-gray-900 via-black to-gray-800 flex flex-col items-center py-8 px-4">
-      {/* Company Logo */}
+    <div className="bg-gray-900   flex flex-col items-center py-8 px-4">
+      <Toaster position="top-right" reverseOrder={false} />{" "}
       <img
         src={logoImage}
         alt="Company Logo"
-        className="h-[10rem] w-full mb-6"
+        className="h-auto rounded-md w-[20rem] mb-6"
       />
-
-      {/* Container */}
       <div className="flex flex-col lg:flex-row w-full max-w-5xl bg-white backdrop-blur-lg p-8 rounded-2xl shadow-lg border border-gray-700">
         {/* Left Section - Form */}
         <div className="w-full lg:w-1/2 p-6 rounded-xl bg-gray-900/50 shadow-md border border-gray-700">
@@ -54,72 +59,41 @@ const Admin = () => {
           </h1>
 
           <div className="space-y-4">
-            <div>
-              <label className="block text-lg text-gray-300 mb-2">
-                Part Name
-              </label>
-              <input
-                type="text"
-                name="part-name"
-                value={partName}
-                onChange={handleInputChange}
-                className="w-full p-3 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-700"
-                placeholder="Enter part name"
-              />
-            </div>
-
-            <div>
-              <label className="block text-lg text-gray-300 mb-2">
-                Part Number
-              </label>
-              <input
-                type="text"
-                name="part-no"
-                value={partNo}
-                onChange={handleInputChange}
-                className="w-full p-3 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-700"
-                placeholder="Enter part number"
-              />
-            </div>
-
-            <div>
-              <label className="block text-lg text-gray-300 mb-2">
-                Quantity
-              </label>
-              <input
-                type="number"
-                name="quantity"
-                value={quantity}
-                onChange={handleInputChange}
-                className="w-full p-3 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-700"
-                placeholder="Enter quantity"
-              />
-            </div>
-
-            {/* Buttons */}
-            <div className="flex flex-col lg:flex-row items-center justify-between mt-6">
-              <button
-                onClick={handleSubmit}
-                className="w-full lg:w-40 py-3 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600 transition-all duration-300"
-              >
-                ✅ Save
-              </button>
-              <button
-                onClick={generatePreview}
-                className="w-full lg:w-40 py-3 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition-all duration-300 mt-4 lg:mt-0"
-              >
-                🔍 Preview
-              </button>
-            </div>
+            {["partName", "partNo", "quantity"].map((field) => (
+              <div key={field}>
+                <label className="block text-lg text-gray-300 mb-2">
+                  {field === "partName"
+                    ? "Part Name"
+                    : field === "partNo"
+                    ? "Part Number"
+                    : "Quantity"}
+                </label>
+                <input
+                  type={field === "quantity" ? "number" : "text"}
+                  name={field}
+                  value={formData[field]}
+                  onChange={handleInputChange}
+                  className="w-full p-3 bg-gray-800 text-white rounded-lg focus:ring-2 focus:ring-blue-500 border border-gray-700"
+                  placeholder={`Enter ${field}`}
+                />
+              </div>
+            ))}
           </div>
+
+          <button
+            onClick={handleSubmit}
+            className="w-full mt-6 py-3 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600"
+          >
+            ✅ Save
+          </button>
         </div>
 
-        {/* Right Section - Barcode Preview */}
+        {/* Barcode Preview */}
         {barcode && (
-          <div className="w-full lg:w-1/2 p-6 mt-8 lg:mt-0 lg:ml-6 rounded-xl bg-gray-900/50 shadow-md border border-gray-700 flex flex-col items-center">
+          <div className="w-full lg:w-1/2 p-6 mt-8 lg:mt-0 lg:ml-6 bg-gray-900/50 shadow-md border border-gray-700 rounded-xl flex flex-col items-center">
             <div className="bg-white w-full p-4 rounded-lg shadow-lg">
               <p className="text-lg text-black mb-4">
-                <strong>Part No:</strong> {partNo}
+                <strong>Part No:</strong> {barcode}
               </p>
               <svg id="barcode" className="w-full h-24"></svg>
             </div>

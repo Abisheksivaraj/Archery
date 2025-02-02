@@ -1,24 +1,47 @@
 import { useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import axios from "axios";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import backgroundImage from "../assets/bgImage.jpg";
 import logoImage from "../assets/companyLogo.jpg";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate(); // Initialize useNavigate
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    console.log("Admin Login Attempted", { email, password });
+
+    try {
+      const response = await axios.post("http://localhost:5555/login", {
+        email,
+        password,
+      });
+
+      toast.success("Login Successful", { position: "top-right" });
+
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("role", response.data.admin.role); // Store the role
+
+      console.log("Login Success:", response.data);
+      navigate("/part");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Login Failed", {
+        position: "top-right",
+      });
+    }
   };
 
   return (
     <div
-      className="p-3 flex items-center justify-center h-screen bg-cover bg-center"
+      className="flex items-center justify-center min-h-screen w-full bg-cover"
       style={{
-        backgroundImage: `url(${backgroundImage})`, // use the imported image
+        backgroundImage: `url(${backgroundImage})`,
       }}
     >
-      <div className="bg-white shadow-lg rounded-2xl opacity-90 p-8 w-full sm:max-w-sm md:max-w-md lg:w-[30rem]">
+      <div className="bg-white  shadow-lg rounded-2xl opacity-70 p-8 w-full sm:max-w-sm md:max-w-md">
         <div className="flex justify-center mb-6">
           <img
             src={logoImage}
@@ -59,6 +82,9 @@ const Auth = () => {
           </button>
         </form>
       </div>
+
+      {/* Toast Container to show messages */}
+      <ToastContainer />
     </div>
   );
 };

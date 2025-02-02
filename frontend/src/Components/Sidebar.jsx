@@ -7,7 +7,7 @@ import List from "@mui/material/List";
 import Divider from "@mui/material/Divider";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
-
+import WidgetsIcon from "@mui/icons-material/Widgets";
 import ListItemText from "@mui/material/ListItemText";
 
 const Sidebar = () => {
@@ -24,17 +24,13 @@ const Sidebar = () => {
   };
 
   const DrawerList = (
-    <Box
-      
-      role="presentation"
-      onClick={toggleDrawer(false)}
-    >
+    <Box role="presentation" onClick={toggleDrawer(false)}>
       <List>
-        {["Part Master", "Table"].map((text, index) => (
+        {["⚙️Part Master", "📝Table"].map((text, index) => (
           <ListItem key={text} disablePadding>
             <ListItemButton
               component={Link}
-              to={index === 0 ? "/" : "/table"}
+              to={index === 0 ? "/part" : "/table"}
               onClick={handleMenuItemClick}
             >
               <ListItemText primary={text} />
@@ -50,9 +46,9 @@ const Sidebar = () => {
     <div>
       <Button
         onClick={toggleDrawer(true)}
-        className="lg:hidden fixed top-5 left-5 z-50 p-3 bg-gray-800 text-white rounded"
+        className="lg:hidden  z-50 p-3 bg-gray-800 text-white rounded"
       >
-        ☰
+      <WidgetsIcon />
       </Button>
 
       {/* Drawer for Sidebar */}
