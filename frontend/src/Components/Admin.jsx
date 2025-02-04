@@ -1,4 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import Box from "@mui/material/Box";
+import List from "@mui/material/List";
+import Divider from "@mui/material/Divider";
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemText from "@mui/material/ListItemText";
 import JsBarcode from "jsbarcode";
 import logoImage from "../assets/companyLogo.jpg";
 import axios from "axios";
@@ -22,11 +29,11 @@ const Admin = () => {
         "http://localhost:5555/addPart",
         formData
       );
-      toast.success(response.data.message); // Show success toast
+      toast.success(response.data.message);
       setBarcode(formData.partNo);
       setFormData({ partName: "", partNo: "", quantity: "" });
     } catch (error) {
-      toast.error(error.response?.data?.message || "Error saving part"); // Show error toast
+      toast.error(error.response?.data?.message || "Error saving part");
     }
   };
 
@@ -44,24 +51,52 @@ const Admin = () => {
   }, [barcode]);
 
   return (
-    <div className="bg-gray-900   flex flex-col items-center py-8 px-4">
-      <Toaster position="top-right" reverseOrder={false} />{" "}
-      <img
-        src={logoImage}
-        alt="Company Logo"
-        className="h-auto rounded-md w-[20rem] mb-6"
-      />
-      <div className="flex flex-col lg:flex-row w-full max-w-5xl bg-white backdrop-blur-lg p-8 rounded-2xl shadow-lg border border-gray-700">
-        {/* Left Section - Form */}
-        <div className="w-full lg:w-1/2 p-6 rounded-xl bg-gray-900/50 shadow-md border border-gray-700">
-          <h1 className="text-3xl font-semibold text-white text-center mb-6">
-            🛠 Part Master
-          </h1>
+    <div className="flex min-h-screen bg-gray-50">
+      {/* Sidebar */}
+      <Box
+        sx={{
+          width: 250,
+          height: "100vh",
+          backgroundColor: "#1F2937",
+          color: "white",
+          position: "fixed",
+          top: 0,
+          left: 0,
+        }}
+      >
+        <img
+                  src={logoImage}
+                  alt="Company Logo"
+                  className="h-auto w-[20rem]"
+                />
+        <Divider sx={{ backgroundColor: "white" }} />
+        <List>
+          {["⚙️ Part Master", "📝 Table"].map((text, index) => (
+            <ListItem key={text} disablePadding>
+              <ListItemButton
+                component={Link}
+                to={index === 0 ? "/part" : "/table"}
+              >
+                <ListItemText primary={text} />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+      </Box>
 
-          <div className="space-y-4">
+      {/* Main Content */}
+      <div className="ml-[260px] flex flex-col items-center justify-center w-full py-12 px-6">
+        <Toaster position="top-right" reverseOrder={false} />
+
+        <div className="w-full max-w-4xl bg-gray-300 shadow-lg rounded-xl p-8 border border-gray-200 flex flex-col lg:flex-row">
+          {/* Form Section */}
+          <div className="w-full lg:w-1/2 space-y-6">
+            <h1 className="text-3xl font-bold text-gray-800 text-center">
+              🛠 Part Master
+            </h1>
             {["partName", "partNo", "quantity"].map((field) => (
               <div key={field}>
-                <label className="block text-lg text-gray-300 mb-2">
+                <label className="block text-gray-600 font-medium mb-2">
                   {field === "partName"
                     ? "Part Name"
                     : field === "partNo"
@@ -73,32 +108,29 @@ const Admin = () => {
                   name={field}
                   value={formData[field]}
                   onChange={handleInputChange}
-                  className="w-full p-3 bg-gray-800 text-white rounded-lg focus:ring-2 focus:ring-blue-500 border border-gray-700"
+                  className="w-full p-3 bg-gray-100 text-gray-800 rounded-lg focus:ring-2 focus:ring-blue-500 border border-gray-300"
                   placeholder={`Enter ${field}`}
                 />
               </div>
             ))}
+            <button
+              onClick={handleSubmit}
+              className="w-full mt-4 py-3 bg-[#24a0ed] text-white font-medium rounded-lg shadow-md hover:bg-blue-700 transition"
+            >
+              ✅ Save
+            </button>
           </div>
 
-          <button
-            onClick={handleSubmit}
-            className="w-full mt-6 py-3 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600"
-          >
-            ✅ Save
-          </button>
-        </div>
-
-        {/* Barcode Preview */}
-        {barcode && (
-          <div className="w-full lg:w-1/2 p-6 mt-8 lg:mt-0 lg:ml-6 bg-gray-900/50 shadow-md border border-gray-700 rounded-xl flex flex-col items-center">
-            <div className="bg-white w-full p-4 rounded-lg shadow-lg">
-              <p className="text-lg text-black mb-4">
+          {/* Barcode Preview */}
+          {barcode && (
+            <div className="w-full lg:w-1/2 mt-8 lg:mt-0 lg:ml-6 flex flex-col items-center border border-gray-200 p-6 bg-gray-50 rounded-lg shadow-md">
+              <p className="text-lg text-gray-700 font-semibold mb-4">
                 <strong>Part No:</strong> {barcode}
               </p>
               <svg id="barcode" className="w-full h-24"></svg>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
