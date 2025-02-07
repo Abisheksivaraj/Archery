@@ -16,8 +16,7 @@ app.use(adminRoute);
 const partRoutes = require("./src/Route/PartRoute");
 app.use(partRoutes);
 
-const userRoutes = require("./src/Route/UserRoute");
-app.use(userRoutes);
+
 
 let counts = {
   totalPartCount: 0,
