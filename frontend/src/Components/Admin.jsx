@@ -68,7 +68,7 @@ const Admin = () => {
         </List>
       </Box>
 
-      <div className="ml-[260px] flex flex-col items-center justify-center w-full py-12 px-6 h-full">
+      <div className="ml-[260px] flex flex-col items-center justify-center w-full py-12 px-6 h-full bg-[#1F2937]">
         <Toaster position="top-right" reverseOrder={false} />
 
         <div className="w-full max-w-4xl bg-gray-300 shadow-lg rounded-xl p-8 border-2 border-gray-400 flex flex-col lg:flex-row h-auto">
@@ -99,7 +99,7 @@ const Admin = () => {
               onClick={handleSubmit}
               className="w-full mt-4 py-3 bg-[#24a0ed] text-white font-medium rounded-lg shadow-md hover:bg-blue-700 transition"
             >
-              ✅ Save
+              💾 Save
             </button>
           </div>
 

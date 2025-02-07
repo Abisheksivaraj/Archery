@@ -239,13 +239,13 @@ const Table = () => {
                         onClick={() => handlePreview(part)}
                         className="bg-blue-500 px-4 py-2 rounded mr-2 text-white"
                       >
-                        Preview
+                        🧐 Preview
                       </button>
                       <button
                         onClick={() => handleEdit(part)}
                         className="bg-green-500 px-4 py-2 rounded text-white"
                       >
-                        Edit
+                        ✏️ Edit
                       </button>
                     </td>
                   </tr>
@@ -259,7 +259,7 @@ const Table = () => {
                 disabled={currentPage === 1}
                 className="px-4 py-2 z- bg-gray-700 rounded disabled:opacity-50"
               >
-                Previous
+                ⮜ Previous
               </button>
               <span className="text-gray-300">
                 Page {currentPage} of {totalPages}
@@ -271,7 +271,7 @@ const Table = () => {
                 disabled={currentPage === totalPages}
                 className="px-4 py-2 bg-gray-700 rounded disabled:opacity-50"
               >
-                Next
+                Next ⮞
               </button>
             </div>
           </div>
@@ -335,14 +335,14 @@ const Table = () => {
                   variant="contained"
                   color="error"
                 >
-                  Cancel
+                  🚫 Cancel
                 </Button>
                 <Button
                   onClick={handleSaveEdit}
                   variant="contained"
                   color="primary"
                 >
-                  Save
+                  💾 Save
                 </Button>
               </div>
             </div>
@@ -352,7 +352,11 @@ const Table = () => {
                 Preview Part
               </h2>
               <div ref={printRef}>
-                <PrintLabel partNo={selectedPart?.partNo} logoUrl={logoImage} className="text-3xl" />
+                <PrintLabel
+                  partNo={selectedPart?.partNo}
+                  logoUrl={logoImage}
+                  className="text-3xl"
+                />
               </div>
               <div className="flex justify-between space-x-2 mt-4">
                 <Button
@@ -360,14 +364,14 @@ const Table = () => {
                   variant="contained"
                   color="error"
                 >
-                  Close
+                  🚫 Close
                 </Button>
                 <Button
                   onClick={handlePrint}
                   variant="contained"
                   color="primary"
                 >
-                  Print
+                  🖨️ Print
                 </Button>
               </div>
             </div>

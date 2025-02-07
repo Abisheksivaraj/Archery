@@ -11,7 +11,7 @@ const User = () => {
   });
   const [scanQuantity, setScanQuantity] = useState("");
   const [scannedQuantity, setScannedQuantity] = useState(0);
-  const [status, setStatus] = useState("Processing");
+  const [status, setStatus] = useState("⚠️ Processing");
   const [totalPartCount, setTotalPartCount] = useState(0);
   const [totalPackageCount, setTotalPackageCount] = useState(0);
   const [previousScanQuantity, setPreviousScanQuantity] = useState("");
@@ -70,7 +70,7 @@ const User = () => {
 
     setScannedQuantity(0);
     setScanQuantity("");
-    setStatus("Processing");
+    setStatus("⚠️ Processing");
     setPreviousScanQuantity("");
 
     const part = parts.find((part) => part.partNo === value);
@@ -95,7 +95,7 @@ const User = () => {
 
   const checkStatus = (partNoValue, scanQuantityValue) => {
     if (String(partNoValue).trim() === String(scanQuantityValue).trim()) {
-      setStatus("Pass");
+      setStatus("PASS ✅");
       if (scanQuantityValue !== previousScanQuantity) {
         const newScannedQuantity = scannedQuantity + 1;
 
@@ -112,14 +112,14 @@ const User = () => {
         setPreviousScanQuantity(scanQuantityValue);
       }
     } else {
-      setStatus("Fail");
+      setStatus("Fail 🚫");
       setPreviousScanQuantity("");
     }
   };
 
   return (
     <div className="p-8 bg-gray-900 min-h-screen text-white">
-      <div className="flex justify-center mb-6">
+      <div className="flex justify-start mb-6">
         <img
           src={logoIcon}
           alt="Company Logo"
@@ -128,7 +128,7 @@ const User = () => {
       </div>
       <div className="max-w-6xl mx-auto space-y-8 backdrop-blur-lg bg-gray-800/50 rounded-lg p-8">
         <h1 className="text-4xl font-bold text-center text-blue-400">
-          Part Management System
+          🗂️ Part Management System
         </h1>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-gray-700/50 p-6 rounded-lg shadow-lg">
@@ -168,7 +168,7 @@ const User = () => {
 
         <div className="bg-gray-700/50 p-8 rounded-lg shadow-lg">
           <h2 className="text-2xl font-semibold text-blue-400 mb-6">
-            Scan Details
+            📇 Scan Details
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -194,9 +194,9 @@ const User = () => {
               <label className="block mb-2">Status</label>
               <div
                 className={`py-4 px-6 text-center rounded-lg text-2xl font-bold shadow-inner ${
-                  status === "Pass"
+                  status === "PASS ✅"
                     ? "bg-green-500/80"
-                    : status === "Fail"
+                    : status === "Fail 🚫"
                     ? "bg-red-500/80"
                     : "bg-yellow-500/80"
                 }`}
