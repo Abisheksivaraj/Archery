@@ -10,11 +10,8 @@ import {
   Legend,
 } from "chart.js";
 import axios from "axios";
-
-// Import Logo (Ensure Correct Path)
 import logo from "../assets/companyLogo.jpg";
 
-// Register Chart.js components
 ChartJS.register(
   BarElement,
   CategoryScale,
@@ -32,36 +29,41 @@ const Dashboard = () => {
     dayCount: 0,
   });
 
-useEffect(() => {
-  const fetchParts = async () => {
-    try {
-      const response = await axios.get("http://localhost:5555/getAllParts");
-      const parts = response.data.parts;
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("http://localhost:5555/getAllParts");
+        const parts = response.data.parts;
 
-      // Count calculations
-      const totalParts = parts.length;
-      const categories = new Set(parts.map((part) => part.partName)).size;
-      const partNo = new Set(parts.map((part) => part.partNo)).size;
+        const partCountResponse = await axios.get(
+          "http://localhost:5555/getTotalPartCount"
+        );
+        const totalPartCount = partCountResponse.data.totalPartCount;
 
-      // Update state
-      setStats({
-        parts: totalParts,
-        categories,
-        totalCount: partNo,
-        dayCount: Math.floor(Math.random() * 50),
-      });
-    } catch (error) {
-      console.error("Error fetching parts data:", error);
-    }
-  };
+        const packageCountResponse = await axios.get(
+          "http://localhost:5555/getTotalPackageCount"
+        );
+        const totalPackageCount = packageCountResponse.data.totalPackageCount;
 
-  // Fetch initially and then set an interval
-  fetchParts();
-  const interval = setInterval(fetchParts, 2000); // Fetch data every 2 seconds
+        const totalParts = parts.length;
+        const categories = new Set(parts.map((part) => part.partName)).size;
 
-  return () => clearInterval(interval); // Cleanup interval on unmount
-}, []);
+        setStats({
+          parts: totalParts,
+          categories,
+          totalCount: totalPartCount,
+          dayCount: totalPackageCount,
+        });
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
 
+    fetchData();
+    const interval = setInterval(fetchData, 2000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const chartLabels = ["Parts", "Categories", "Total Count", "Day Count"];
   const chartData = [
@@ -71,28 +73,46 @@ useEffect(() => {
     stats.dayCount,
   ];
 
-  // Bar Chart Data
   const barData = {
     labels: chartLabels,
     datasets: [
       {
         label: "Counts",
         data: chartData,
-        backgroundColor: ["#3b82f6", "#10b981", "#f59e0b", "#ef4444"],
-        borderColor: "#ffffff",
+        backgroundColor: [
+          "rgba(59, 130, 246, 0.6)",
+          "rgba(16, 185, 129, 0.6)",
+          "rgba(245, 158, 11, 0.6)",
+          "rgba(239, 68, 68, 0.6)",
+        ],
+        borderColor: [
+          "rgba(59, 130, 246, 1)",
+          "rgba(16, 185, 129, 1)",
+          "rgba(245, 158, 11, 1)",
+          "rgba(239, 68, 68, 1)",
+        ],
         borderWidth: 2,
       },
     ],
   };
 
-  // Pie Chart Data
   const pieData = {
     labels: chartLabels,
     datasets: [
       {
         data: chartData,
-        backgroundColor: ["#3b82f6", "#10b981", "#f59e0b", "#ef4444"],
-        borderColor: "#ffffff",
+        backgroundColor: [
+          "rgba(59, 130, 246, 0.6)",
+          "rgba(16, 185, 129, 0.6)",
+          "rgba(245, 158, 11, 0.6)",
+          "rgba(239, 68, 68, 0.6)",
+        ],
+        borderColor: [
+          "rgba(59, 130, 246, 1)",
+          "rgba(16, 185, 129, 1)",
+          "rgba(245, 158, 11, 1)",
+          "rgba(239, 68, 68, 1)",
+        ],
         borderWidth: 2,
       },
     ],
@@ -100,25 +120,18 @@ useEffect(() => {
 
   return (
     <div className="relative w-full min-h-screen bg-gray-900 text-white">
-      {/* Logo */}
       <img
         src={logo}
         alt="Company Logo"
-        className="absolute top-6 left-6 md:w-40 lg:w-50 h-auto object-contain z-50"
+        className="absolute top-6 left-6 w-24 sm:w-32 md:w-40 lg:w-50 h-auto object-contain z-50"
       />
-
-      {/* Background Overlay */}
       <div className="fixed inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-black"></div>
-
-      {/* Main Dashboard Container */}
-      <div className="relative z-10 p-8">
-        {/* Header */}
-        <h1 className="text-4xl font-bold text-center mb-8 text-white/90">
+      <div className="relative z-10 p-4 sm:p-6 lg:p-8">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-6 sm:mb-8 text-white/90">
           📊 Admin Dashboard
         </h1>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 mb-8">
           {[
             {
               title: "No. of Parts",
@@ -131,44 +144,39 @@ useEffect(() => {
               color: "from-green-600",
             },
             {
-              title: "Total Count",
+              title: "Total Part Count",
               count: stats.totalCount,
               color: "from-yellow-600",
             },
             {
-              title: "Day Count",
+              title: "Total Package Count",
               count: stats.dayCount,
               color: "from-red-600",
             },
           ].map((item, index) => (
             <div
               key={index}
-              className={`
-                bg-gradient-to-r ${item.color} to-gray-900 p-6 rounded-2xl 
-                text-white text-center shadow-lg backdrop-blur-xl 
-                bg-opacity-30 border border-white/20 
-                hover:scale-105 transition-transform duration-300
-              `}
+              className={`bg-gradient-to-r ${item.color} to-gray-900 p-4 sm:p-6 rounded-2xl text-white text-center shadow-lg backdrop-blur-xl bg-opacity-30 border border-white/20 hover:scale-105 transition-transform duration-300`}
             >
-              <h2 className="text-lg font-semibold opacity-90">{item.title}</h2>
-              <p className="text-4xl font-bold mt-2 text-white">{item.count}</p>
+              <h2 className="text-sm sm:text-lg font-semibold opacity-90">
+                {item.title}
+              </h2>
+              <p className="text-2xl sm:text-4xl font-bold mt-2 text-white">
+                {item.count}
+              </p>
             </div>
           ))}
         </div>
 
-        {/* Charts Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Bar Chart */}
-          <div className="bg-white/10 p-6 rounded-2xl shadow-lg backdrop-blur-xl border border-white/20 hover:shadow-xl transition-shadow duration-300">
-            <h2 className="text-xl font-semibold mb-4 text-white/80">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+          <div className="bg-white/10 p-4 sm:p-6 rounded-2xl shadow-lg backdrop-blur-xl border border-white/20 hover:shadow-xl transition-shadow duration-300">
+            <h2 className="text-lg sm:text-xl font-semibold mb-4 text-white/80">
               Data Overview
             </h2>
             <Bar data={barData} />
           </div>
-
-          {/* Pie Chart */}
-          <div className="bg-white/10 p-6 rounded-2xl shadow-lg backdrop-blur-xl border border-white/20 hover:shadow-xl transition-shadow duration-300">
-            <h2 className="text-xl font-semibold mb-4 text-white/80">
+          <div className="bg-white/10 p-4 sm:p-6 rounded-2xl shadow-lg backdrop-blur-xl border border-white/20 hover:shadow-xl transition-shadow duration-300">
+            <h2 className="text-lg sm:text-xl font-semibold mb-4 text-white/80">
               Data Distribution
             </h2>
             <Pie data={pieData} />

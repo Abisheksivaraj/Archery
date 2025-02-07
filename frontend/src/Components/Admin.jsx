@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import Box from "@mui/material/Box";
 import List from "@mui/material/List";
@@ -6,10 +6,10 @@ import Divider from "@mui/material/Divider";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
-import JsBarcode from "jsbarcode";
 import logoImage from "../assets/companyLogo.jpg";
 import axios from "axios";
 import { Toaster, toast } from "react-hot-toast";
+import QRcode from "react-qr-code";
 
 const Admin = () => {
   const [formData, setFormData] = useState({
@@ -37,22 +37,8 @@ const Admin = () => {
     }
   };
 
-  const generateBarcode = () => {
-    if (barcode) {
-      JsBarcode("#barcode", barcode, {
-        format: "CODE128",
-        displayValue: false,
-      });
-    }
-  };
-
-  useEffect(() => {
-    generateBarcode();
-  }, [barcode]);
-
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
       <Box
         sx={{
           width: 250,
@@ -62,16 +48,14 @@ const Admin = () => {
           position: "fixed",
           top: 0,
           left: 0,
+          border: "2px solid #E5E7EB",
+          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
         }}
       >
-        <img
-                  src={logoImage}
-                  alt="Company Logo"
-                  className="h-auto w-[20rem]"
-                />
+        <img src={logoImage} alt="Company Logo" className="h-auto w-[20rem]" />
         <Divider sx={{ backgroundColor: "white" }} />
         <List>
-          {["⚙️ Part Master", "📝 Table"].map((text, index) => (
+          {["⚙️ Part Master", "📝 Part Master Table"].map((text, index) => (
             <ListItem key={text} disablePadding>
               <ListItemButton
                 component={Link}
@@ -84,13 +68,11 @@ const Admin = () => {
         </List>
       </Box>
 
-      {/* Main Content */}
-      <div className="ml-[260px] flex flex-col items-center justify-center w-full py-12 px-6">
+      <div className="ml-[260px] flex flex-col items-center justify-center w-full py-12 px-6 h-full">
         <Toaster position="top-right" reverseOrder={false} />
 
-        <div className="w-full max-w-4xl bg-gray-300 shadow-lg rounded-xl p-8 border border-gray-200 flex flex-col lg:flex-row">
-          {/* Form Section */}
-          <div className="w-full lg:w-1/2 space-y-6">
+        <div className="w-full max-w-4xl bg-gray-300 shadow-lg rounded-xl p-8 border-2 border-gray-400 flex flex-col lg:flex-row h-auto">
+          <div className="w-full lg:w-1/2 space-y-6 border-2 border-gray-400 p-6 rounded-md shadow-md bg-white">
             <h1 className="text-3xl font-bold text-gray-800 text-center">
               🛠 Part Master
             </h1>
@@ -101,10 +83,10 @@ const Admin = () => {
                     ? "Part Name"
                     : field === "partNo"
                     ? "Part Number"
-                    : "Quantity"}
+                    : "Packing Quantity"}
                 </label>
                 <input
-                  type={field === "quantity" ? "number" : "text"}
+                  type={field === "quantity" ? "text" : "text"}
                   name={field}
                   value={formData[field]}
                   onChange={handleInputChange}
@@ -121,13 +103,20 @@ const Admin = () => {
             </button>
           </div>
 
-          {/* Barcode Preview */}
           {barcode && (
-            <div className="w-full lg:w-1/2 mt-8 lg:mt-0 lg:ml-6 flex flex-col items-center border border-gray-200 p-6 bg-gray-50 rounded-lg shadow-md">
-              <p className="text-lg text-gray-700 font-semibold mb-4">
-                <strong>Part No:</strong> {barcode}
-              </p>
-              <svg id="barcode" className="w-full h-24"></svg>
+            <div className="w-full lg:w-1/2 mt-8 lg:mt-0 lg:ml-6 border-2 border-gray-400 p-6 bg-gray-50 rounded-lg shadow-md flex flex-row items-center justify-center gap-7">
+              <div className="flex flex-row border-gray-400 border-2 border-dotted p-5 gap-7">
+                <div className="flex flex-col">
+                  <img src={logoImage} alt="Logo" className="w-[8rem] mb-4" />
+                  <p className="text-lg flex gap-2 text-gray-700 font-semibold">
+                    <h6>Part No:</h6> {barcode}
+                  </p>
+                </div>
+
+                <div className="">
+                  <QRcode value={barcode} size={100} />
+                </div>
+              </div>
             </div>
           )}
         </div>

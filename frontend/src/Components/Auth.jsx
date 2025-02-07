@@ -2,14 +2,14 @@ import { useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom"; 
 import backgroundImage from "../assets/bgImage.jpg";
 import logoImage from "../assets/companyLogo.jpg";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate(); 
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -23,7 +23,7 @@ const Auth = () => {
       toast.success("Login Successful", { position: "top-right" });
 
       localStorage.setItem("token", response.data.token);
-      localStorage.setItem("role", response.data.admin.role); // Store the role
+      localStorage.setItem("role", response.data.admin.role); 
 
       console.log("Login Success:", response.data);
       navigate("/part");
@@ -83,7 +83,6 @@ const Auth = () => {
         </form>
       </div>
 
-      {/* Toast Container to show messages */}
       <ToastContainer />
     </div>
   );
