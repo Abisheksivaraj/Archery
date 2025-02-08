@@ -16,8 +16,6 @@ app.use(adminRoute);
 const partRoutes = require("./src/Route/PartRoute");
 app.use(partRoutes);
 
-
-
 let counts = {
   totalPartCount: 0,
   totalPackageCount: 0,
@@ -47,6 +45,46 @@ app.post("/saveCounts", (req, res) => {
     res.status(200).json({ message: "Counts saved successfully", counts });
   } else {
     res.status(400).json({ message: "Invalid data provided" });
+  }
+});
+
+// New route to delete total parts count
+app.post("/deleteTotalParts", (req, res) => {
+  try {
+    counts.totalPartCount = 0;
+    res.status(200).json({
+      message: "Total parts count reset successfully",
+      totalPartCount: counts.totalPartCount,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error resetting total parts count" });
+  }
+});
+
+// New route to delete total packages count
+app.post("/deleteTotalPackages", (req, res) => {
+  try {
+    counts.totalPackageCount = 0;
+    res.status(200).json({
+      message: "Total packages count reset successfully",
+      totalPackageCount: counts.totalPackageCount,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error resetting total packages count" });
+  }
+});
+
+// New route to delete all counts
+app.post("/deleteAllCounts", (req, res) => {
+  try {
+    counts.totalPartCount = 0;
+    counts.totalPackageCount = 0;
+    res.status(200).json({
+      message: "All counts reset successfully",
+      counts,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error resetting counts" });
   }
 });
 

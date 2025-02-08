@@ -18,6 +18,13 @@ const User = () => {
 
   const scanQuantityRef = useRef(null);
 
+  // Add new useEffect for auto-focus
+  useEffect(() => {
+    if (selectedPartNo && scanQuantityRef.current) {
+      scanQuantityRef.current.focus();
+    }
+  }, [selectedPartNo]);
+
   useEffect(() => {
     const fetchParts = async () => {
       try {
@@ -90,6 +97,13 @@ const User = () => {
   const handleScanQuantityChange = (e) => {
     const value = e.target.value;
     setScanQuantity(value);
+
+    // If there was a previous fail status, clear the input and update with new value
+    if (status === "Fail 🚫") {
+      setScanQuantity(value);
+      setPreviousScanQuantity("");
+    }
+
     checkStatus(selectedPartNo, value);
   };
 
@@ -114,6 +128,31 @@ const User = () => {
     } else {
       setStatus("Fail 🚫");
       setPreviousScanQuantity("");
+      // After a brief delay, clear the scan quantity field
+      setTimeout(() => {
+        setScanQuantity("");
+        if (scanQuantityRef.current) {
+          scanQuantityRef.current.focus();
+        }
+      }, 500); // 500ms delay to show the failed value briefly
+    }
+  };
+
+ const [deleteType, setDeleteType] = useState("");
+
+
+  const handleDelete = async () => {
+    try {
+      if (deleteType === "parts") {
+        await axios.post("http://localhost:5555/deleteTotalParts");
+        toast.success("Total parts count reset successfully");
+      } else if (deleteType === "packages") {
+        await axios.post("http://localhost:5555/deleteTotalPackages");
+        toast.success("Total packages count reset successfully");
+      }
+      setDeleteType("");
+    } catch (error) {
+      toast.error(`Error resetting ${deleteType} count`);
     }
   };
 
@@ -211,7 +250,13 @@ const User = () => {
               <h4 className="text-lg font-medium text-blue-400 mb-2">
                 Total Part Count
               </h4>
-              <div className="bg-[#f07167] text-white py-4 px-8 rounded-lg text-2xl font-bold shadow-inner">
+              <div
+                onClick={() => {
+                  setDeleteType("packages");
+                  handleDelete();
+                }}
+                className="bg-[#f07167] text-white py-4 px-8 rounded-lg text-2xl font-bold shadow-inner"
+              >
                 {totalPartCount}
               </div>
             </div>
@@ -220,7 +265,13 @@ const User = () => {
               <h4 className="text-lg font-medium text-blue-400 mb-2">
                 Total Package Count
               </h4>
-              <div className="bg-[#00a8aa] text-white py-4 px-8 rounded-lg text-2xl font-bold shadow-inner">
+              <div
+                onClick={() => {
+                  setDeleteType("packages");
+                  handleDelete();
+                }}
+                className="bg-[#00a8aa] text-white py-4 px-8 rounded-lg text-2xl font-bold shadow-inner"
+              >
                 {totalPackageCount}
               </div>
             </div>

@@ -37,6 +37,28 @@ const Admin = () => {
     }
   };
 
+  const handleDeleteTotalParts = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost:5555/deleteTotalParts"
+      );
+      toast.success("Total parts count reset successfully");
+    } catch (error) {
+      toast.error("Error resetting total parts count");
+    }
+  };
+
+  const handleDeleteTotalPackages = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost:5555/deleteTotalPackages"
+      );
+      toast.success("Total packages count reset successfully");
+    } catch (error) {
+      toast.error("Error resetting total packages count");
+    }
+  };
+
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
       <Box
@@ -65,6 +87,31 @@ const Admin = () => {
               </ListItemButton>
             </ListItem>
           ))}
+          <Divider sx={{ backgroundColor: "white", my: 2 }} />
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={handleDeleteTotalParts}
+              sx={{
+                "&:hover": {
+                  backgroundColor: "#DC2626",
+                },
+              }}
+            >
+              <ListItemText primary="🗑️ Delete Total Parts" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={handleDeleteTotalPackages}
+              sx={{
+                "&:hover": {
+                  backgroundColor: "#DC2626",
+                },
+              }}
+            >
+              <ListItemText primary="🗑️ Delete Total Packages" />
+            </ListItemButton>
+          </ListItem>
         </List>
       </Box>
 

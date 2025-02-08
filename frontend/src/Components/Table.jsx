@@ -16,7 +16,7 @@ const PrintLabel = ({ partNo, logoUrl }) => {
   const isLongPartNo = partNo.length > 11;
 
   const labelStyle = {
-    width: isLongPartNo ? "60mm" : "50mm", 
+    width: isLongPartNo ? "60mm" : "50mm",
     height: "25mm",
     padding: "2mm",
     display: "flex",
@@ -30,10 +30,10 @@ const PrintLabel = ({ partNo, logoUrl }) => {
 
   const textStyle = {
     margin: 0,
-    fontSize: isLongPartNo ? "8px" : "10px", 
+    fontSize: isLongPartNo ? "8px" : "10px",
     color: "black",
     fontWeight: "500",
-    wordBreak: "break-all", 
+    wordBreak: "break-all",
   };
 
   return (
@@ -168,6 +168,38 @@ const Table = () => {
     }
   };
 
+  const handleDelete = async (selectedPart) => {
+    try {
+      // Make a DELETE request
+      const response = await axios.delete(
+        `http://localhost:5555/deletePart/${selectedPart._id}`
+      );
+
+      if (response.status === 200) {
+        // Filter out the deleted part from the parts list
+        setParts(parts.filter((part) => part._id !== selectedPart._id));
+        toast.success("Part deleted successfully!", {
+          position: toast.POSITION.TOP_RIGHT,
+          autoClose: 3000,
+        });
+      } else {
+        toast.error("Failed to delete part. Please try again.", {
+          position: toast.POSITION.TOP_RIGHT,
+          autoClose: 3000,
+        });
+      }
+    } catch (error) {
+      console.error("Error deleting part:", error);
+      toast.error(
+        "An error occurred while deleting the part. Please try again.",
+        {
+          position: toast.POSITION.TOP_RIGHT,
+          autoClose: 3000,
+        }
+      );
+    }
+  };
+
   return (
     <div className="flex">
       <Box
@@ -234,7 +266,7 @@ const Table = () => {
                     <td className="py-3 px-6 border-b text-center border-gray-700">
                       {part.quantity}
                     </td>
-                    <td className="py-3 px-6 border-b border-gray-700">
+                    <td className="flex h-20 gap-2 py-3 px-6 border-b border-gray-700">
                       <button
                         onClick={() => handlePreview(part)}
                         className="bg-blue-500 px-4 py-2 rounded mr-2 text-white"
@@ -246,6 +278,13 @@ const Table = () => {
                         className="bg-green-500 px-4 py-2 rounded text-white"
                       >
                         ✏️ Edit
+                      </button>
+
+                      <button
+                        onClick={() => handleDelete(part)}
+                        className="bg-red-400 px-4 py-2 rounded mr-2 text-white"
+                      >
+                        🗑️ Delete
                       </button>
                     </td>
                   </tr>
