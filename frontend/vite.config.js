@@ -13,7 +13,7 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
-      external: ["react-hot-toast"],
+      external: ["react-hot-toast", "react-toastify"],
     },
-  }, 
+  },
 });
