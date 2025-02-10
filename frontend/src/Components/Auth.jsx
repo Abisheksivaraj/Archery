@@ -5,6 +5,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom"; 
 import backgroundImage from "../assets/bgImage.jpg";
 import logoImage from "../assets/companyLogo.jpg";
+import { api } from "../apiConfig";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -15,7 +16,7 @@ const Auth = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post("http://localhost:5555/login", {
+      const response = await api.post("/login", {
         email,
         password,
       });

@@ -10,6 +10,8 @@ import logoImage from "../assets/companyLogo.jpg";
 import axios from "axios";
 import { Toaster, toast } from "react-hot-toast";
 import QRcode from "react-qr-code";
+import { api } from "../apiConfig";
+
 
 const Admin = () => {
   const [formData, setFormData] = useState({
@@ -25,8 +27,8 @@ const Admin = () => {
 
   const handleSubmit = async () => {
     try {
-      const response = await axios.post(
-        "http://localhost:5555/addPart",
+      const response = await api.post(
+        "/addPart",
         formData
       );
       toast.success(response.data.message);
@@ -39,8 +41,8 @@ const Admin = () => {
 
   const handleDeleteTotalParts = async () => {
     try {
-      const response = await axios.post(
-        "http://localhost:5555/deleteTotalParts"
+      const response = await api.post(
+        "/deleteTotalParts"
       );
       toast.success("Total parts count reset successfully");
     } catch (error) {
@@ -51,7 +53,7 @@ const Admin = () => {
   const handleDeleteTotalPackages = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:5555/deleteTotalPackages"
+        "/deleteTotalPackages"
       );
       toast.success("Total packages count reset successfully");
     } catch (error) {

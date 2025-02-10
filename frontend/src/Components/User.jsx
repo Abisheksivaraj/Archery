@@ -3,6 +3,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import logoIcon from "../assets/companyLogo.jpg";
 import QRCode from "react-qr-code";
+import { api } from "../apiConfig";
 
 // Separate Label component with corrected props
 const PartLabel = ({ partNo, logoUrl, partName, quantity }) => {
@@ -126,7 +127,7 @@ const User = () => {
   useEffect(() => {
     const fetchParts = async () => {
       try {
-        const response = await axios.get("http://localhost:5555/getAllParts");
+        const response = await api.get("/getAllParts");
         setParts(response.data.parts);
       } catch (error) {
         console.error("Error fetching parts:", error);
@@ -140,7 +141,7 @@ const User = () => {
   // Update counts
   const updateCounts = async () => {
     try {
-      await axios.post("http://localhost:5555/saveCounts", {
+      await api.post("/saveCounts", {
         totalPartCount,
         totalPackageCount,
       });
@@ -160,7 +161,7 @@ const User = () => {
   useEffect(() => {
     const fetchCounts = async () => {
       try {
-        const response = await axios.get("http://localhost:5555/getCounts");
+        const response = await api.get("/getCounts");
         if (response.data) {
           setTotalPartCount(response.data.totalPartCount || 0);
           setTotalPackageCount(response.data.totalPackageCount || 0);
@@ -289,21 +290,21 @@ const User = () => {
   const handleDelete = async (type) => {
     try {
       if (type === "parts") {
-        await axios.post("http://localhost:5555/deleteTotalParts");
+        await api.post("/deleteTotalParts");
         setTotalPartCount(0);
         setDeleteType("");
         // Fetch updated counts after deletion
-        const response = await axios.get("http://localhost:5555/getCounts");
+        const response = await api.get("/getCounts");
         if (response.data) {
           setTotalPartCount(response.data.totalPartCount || 0);
         }
         toast.success("Total parts count reset successfully");
       } else if (type === "packages") {
-        await axios.post("http://localhost:5555/deleteTotalPackages");
+        await api.post("/deleteTotalPackages");
         setTotalPackageCount(0);
         setDeleteType("");
         // Fetch updated counts after deletion
-        const response = await axios.get("http://localhost:5555/getCounts");
+        const response = await api.get("/getCounts");
         if (response.data) {
           setTotalPackageCount(response.data.totalPackageCount || 0);
         }

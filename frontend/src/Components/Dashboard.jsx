@@ -13,6 +13,7 @@ import axios from "axios";
 import logo from "../assets/companyLogo.jpg";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { api } from "../apiConfig";
 
 ChartJS.register(
   BarElement,
@@ -34,16 +35,16 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:5555/getAllParts");
+        const response = await api.get("/getAllParts");
         const parts = response.data.parts;
 
-        const partCountResponse = await axios.get(
-          "http://localhost:5555/getTotalPartCount"
+        const partCountResponse = await api.get(
+          "/getTotalPartCount"
         );
         const totalPartCount = partCountResponse.data.totalPartCount;
 
-        const packageCountResponse = await axios.get(
-          "http://localhost:5555/getTotalPackageCount"
+        const packageCountResponse = await api.get(
+          "/getTotalPackageCount"
         );
         const totalPackageCount = packageCountResponse.data.totalPackageCount;
 

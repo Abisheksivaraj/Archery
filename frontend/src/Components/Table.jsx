@@ -11,6 +11,7 @@ import logoImage from "../assets/companyLogo.jpg";
 import { Modal, Button, TextField } from "@mui/material";
 import { toast } from "react-toastify";
 import QRCode from "react-qr-code";
+import { api } from "../apiConfig";
 
 const PrintLabel = ({ partNo, logoUrl }) => {
   const isLongPartNo = partNo.length > 11;
@@ -122,7 +123,7 @@ const Table = () => {
   useEffect(() => {
     const fetchParts = async () => {
       try {
-        const response = await axios.get("http://localhost:5555/getAllParts");
+        const response = await api.get("/getAllParts");
         setParts(response.data.parts);
       } catch (error) {
         console.error("Error fetching parts:", error);
@@ -150,8 +151,8 @@ const Table = () => {
 
   const handleSaveEdit = async () => {
     try {
-      await axios.put(
-        `http://localhost:5555/editPart/${selectedPart._id}`,
+      await api.put(
+        `/editPart/${selectedPart._id}`,
         updatedPart
       );
       setParts(
@@ -171,8 +172,8 @@ const Table = () => {
   const handleDelete = async (selectedPart) => {
     try {
       // Make a DELETE request
-      const response = await axios.delete(
-        `http://localhost:5555/deletePart/${selectedPart._id}`
+      const response = await api.delete(
+        `/deletePart/${selectedPart._id}`
       );
 
       if (response.status === 200) {
