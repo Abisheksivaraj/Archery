@@ -11,4 +11,9 @@ export default defineConfig({
       "@emotion/styled": "@emotion/styled",
     },
   },
+  build: {
+    rollupOptions: {
+      external: ["react-hot-toast"],
+    },
+  }, 
 });
