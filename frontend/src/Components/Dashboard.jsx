@@ -11,8 +11,8 @@ import {
 } from "chart.js";
 import axios from "axios";
 import logo from "../assets/companyLogo.jpg";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+
+
 import { api } from "../apiConfig";
 
 ChartJS.register(
