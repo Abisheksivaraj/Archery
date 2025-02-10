@@ -30,7 +30,6 @@ const Dashboard = () => {
     totalCount: 0,
     dayCount: 0,
   });
-  const [deleteType, setDeleteType] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -67,21 +66,6 @@ const Dashboard = () => {
 
     return () => clearInterval(interval);
   }, []);
-
-  const handleDelete = async () => {
-    try {
-      if (deleteType === "parts") {
-        await axios.post("http://localhost:5555/deleteTotalParts");
-        toast.success("Total parts count reset successfully");
-      } else if (deleteType === "packages") {
-        await axios.post("http://localhost:5555/deleteTotalPackages");
-        toast.success("Total packages count reset successfully");
-      }
-      setDeleteType("");
-    } catch (error) {
-      toast.error(`Error resetting ${deleteType} count`);
-    }
-  };
 
   const chartLabels = ["Parts", "Categories", "Total Count", "Day Count"];
   const chartData = [
@@ -199,27 +183,6 @@ const Dashboard = () => {
             </h2>
             <Pie data={pieData} />
           </div>
-        </div>
-
-        <div className="flex justify-center mt-8 gap-4">
-          <button
-            onClick={() => {
-              setDeleteType("parts");
-              handleDelete();
-            }}
-            className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg shadow-md"
-          >
-            Reset Total Parts
-          </button>
-          <button
-            onClick={() => {
-              setDeleteType("packages");
-              handleDelete();
-            }}
-            className="bg-yellow-600 hover:bg-yellow-700 text-white py-2 px-4 rounded-lg shadow-md"
-          >
-            Reset Total Packages
-          </button>
         </div>
       </div>
     </div>

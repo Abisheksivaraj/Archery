@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
 import logoIcon from "../assets/companyLogo.jpg";
 
 const User = () => {
@@ -15,16 +16,18 @@ const User = () => {
   const [totalPartCount, setTotalPartCount] = useState(0);
   const [totalPackageCount, setTotalPackageCount] = useState(0);
   const [previousScanQuantity, setPreviousScanQuantity] = useState("");
+  const [deleteType, setDeleteType] = useState("");
 
   const scanQuantityRef = useRef(null);
 
-  // Add new useEffect for auto-focus
+  // Auto-focus effect
   useEffect(() => {
     if (selectedPartNo && scanQuantityRef.current) {
       scanQuantityRef.current.focus();
     }
   }, [selectedPartNo]);
 
+  // Fetch parts data
   useEffect(() => {
     const fetchParts = async () => {
       try {
@@ -32,12 +35,14 @@ const User = () => {
         setParts(response.data.parts);
       } catch (error) {
         console.error("Error fetching parts:", error);
+        toast.error("Failed to fetch parts data");
       }
     };
 
     fetchParts();
   }, []);
 
+  // Update counts
   const updateCounts = async () => {
     try {
       await axios.post("http://localhost:5555/saveCounts", {
@@ -46,6 +51,7 @@ const User = () => {
       });
     } catch (error) {
       console.error("Error saving counts:", error);
+      toast.error("Failed to save counts");
     }
   };
 
@@ -55,6 +61,7 @@ const User = () => {
     }
   }, [totalPartCount, totalPackageCount]);
 
+  // Fetch initial counts
   useEffect(() => {
     const fetchCounts = async () => {
       try {
@@ -65,16 +72,92 @@ const User = () => {
         }
       } catch (error) {
         console.error("Error fetching counts:", error);
+        toast.error("Failed to fetch counts");
       }
     };
 
     fetchCounts();
   }, []);
 
+  // Print functionality
+  const handlePrint = () => {
+    const iframe = document.createElement("iframe");
+    iframe.style.visibility = "hidden";
+    iframe.style.position = "fixed";
+    iframe.style.right = "0";
+    iframe.style.bottom = "0";
+    document.body.appendChild(iframe);
+
+    const printContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Print Barcode</title>
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"></script>
+          <style>
+            body { 
+              font-family: Arial, sans-serif; 
+              padding: 20px;
+              margin: 0;
+            }
+            .print-container { 
+              text-align: center;
+              max-width: 400px;
+              margin: 0 auto;
+            }
+            .barcode-container { 
+              margin: 20px 0;
+            }
+            .part-details { 
+              margin-bottom: 20px;
+              text-align: left;
+            }
+            .part-details h2 {
+              text-align: center;
+              margin-bottom: 15px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="print-container">
+            <div class="part-details">
+              <h2>Part Details</h2>
+              <p><strong>Part No:</strong> ${selectedPartNo}</p>
+              <p><strong>Part Name:</strong> ${selectedPart.partName}</p>
+              <p><strong>Quantity:</strong> ${selectedPart.quantity}</p>
+            </div>
+            <div class="barcode-container">
+              <svg id="barcode"></svg>
+            </div>
+          </div>
+          <script>
+            window.onload = function() {
+              JsBarcode("#barcode", "${selectedPartNo}", {
+                format: "CODE128",
+                width: 2,
+                height: 100,
+                displayValue: true
+              });
+              window.print();
+              setTimeout(function() {
+                window.frameElement.remove();
+              }, 100);
+            };
+          </script>
+        </body>
+      </html>
+    `;
+
+    const iframeDoc = iframe.contentWindow.document;
+    iframeDoc.open();
+    iframeDoc.write(printContent);
+    iframeDoc.close();
+  };
+
+  // Handle part number change
   const handlePartNoChange = (e) => {
     const value = e.target.value;
     setSelectedPartNo(value);
-
     setScannedQuantity(0);
     setScanQuantity("");
     setStatus("⚠️ Processing");
@@ -94,11 +177,11 @@ const User = () => {
     }
   };
 
+  // Handle scan quantity change
   const handleScanQuantityChange = (e) => {
     const value = e.target.value;
     setScanQuantity(value);
 
-    // If there was a previous fail status, clear the input and update with new value
     if (status === "Fail 🚫") {
       setScanQuantity(value);
       setPreviousScanQuantity("");
@@ -107,6 +190,7 @@ const User = () => {
     checkStatus(selectedPartNo, value);
   };
 
+  // Check status and handle printing
   const checkStatus = (partNoValue, scanQuantityValue) => {
     if (String(partNoValue).trim() === String(scanQuantityValue).trim()) {
       setStatus("PASS ✅");
@@ -119,6 +203,9 @@ const User = () => {
         if (newScannedQuantity === Number(selectedPart.quantity)) {
           setTotalPackageCount((prev) => prev + 1);
           setScannedQuantity(0);
+          setTimeout(() => {
+            handlePrint();
+          }, 100);
         } else {
           setScannedQuantity(newScannedQuantity);
         }
@@ -128,26 +215,25 @@ const User = () => {
     } else {
       setStatus("Fail 🚫");
       setPreviousScanQuantity("");
-      // After a brief delay, clear the scan quantity field
       setTimeout(() => {
         setScanQuantity("");
         if (scanQuantityRef.current) {
           scanQuantityRef.current.focus();
         }
-      }, 500); // 500ms delay to show the failed value briefly
+      }, 500);
     }
   };
 
- const [deleteType, setDeleteType] = useState("");
-
-
+  // Handle delete functionality
   const handleDelete = async () => {
     try {
       if (deleteType === "parts") {
         await axios.post("http://localhost:5555/deleteTotalParts");
+        setTotalPartCount(0);
         toast.success("Total parts count reset successfully");
       } else if (deleteType === "packages") {
         await axios.post("http://localhost:5555/deleteTotalPackages");
+        setTotalPackageCount(0);
         toast.success("Total packages count reset successfully");
       }
       setDeleteType("");
@@ -252,10 +338,10 @@ const User = () => {
               </h4>
               <div
                 onClick={() => {
-                  setDeleteType("packages");
+                  setDeleteType("parts");
                   handleDelete();
                 }}
-                className="bg-[#f07167] text-white py-4 px-8 rounded-lg text-2xl font-bold shadow-inner"
+                className="bg-[#f07167] text-white py-4 px-8 rounded-lg text-2xl font-bold shadow-inner cursor-pointer"
               >
                 {totalPartCount}
               </div>
@@ -270,7 +356,7 @@ const User = () => {
                   setDeleteType("packages");
                   handleDelete();
                 }}
-                className="bg-[#00a8aa] text-white py-4 px-8 rounded-lg text-2xl font-bold shadow-inner"
+                className="bg-[#00a8aa] text-white py-4 px-8 rounded-lg text-2xl font-bold shadow-inner cursor-pointer"
               >
                 {totalPackageCount}
               </div>
