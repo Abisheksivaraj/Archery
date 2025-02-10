@@ -10,7 +10,7 @@
 
 import axios from "axios";
 
-export const API_URL = "https://archery-1.onrender.com";
+export const API_URL = "http://localhost:5555";
 
 // const jwt = localStorage.getItem("jwt");
 
