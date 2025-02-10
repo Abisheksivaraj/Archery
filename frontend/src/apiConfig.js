@@ -6,15 +6,13 @@
 
 // export default config;
 
-
-
 import axios from "axios";
 
-export const API_URL = "https://archery-1.onrender.com";
-
-// const jwt = localStorage.getItem("jwt");
+export const API_URL = "http://localhost:5555";
 
 export const api = axios.create({
   baseURL: API_URL,
-  
-}); 
+  headers: {
+    "Content-Type": "application/json",
+  },
+});

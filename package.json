@@ -28,7 +28,6 @@
     "nodemon": "^3.1.9",
     "quagga": "^0.12.1",
     "react-hot-toast": "^2.5.1",
-    "react-toastify": "^11.0.3",
-    "use-scan-detection": "^0.2.3"
+    "react-toastify": "^11.0.3"
   }
 }

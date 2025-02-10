@@ -27,17 +27,33 @@ const Admin = () => {
 
   const handleSubmit = async () => {
     try {
-      const response = await api.post(
-        "/addPart",
-        formData
-      );
+      // Validate formData before submitting
+      if (!formData.partName || !formData.partNo || !formData.quantity) {
+        toast.error("All fields are required.");
+        return;
+      }
+
+      // Make the API call to save the part
+      const response = await api.post("/addPart", {
+        partName: formData.partName,
+        partNo: formData.partNo,
+        quantity: formData.quantity,
+      });
+
+      // Display success message
       toast.success(response.data.message);
+
+      // Set barcode and reset form data
       setBarcode(formData.partNo);
       setFormData({ partName: "", partNo: "", quantity: "" });
     } catch (error) {
-      toast.error(error.response?.data?.message || "Error saving part");
+      // Handle errors gracefully
+      const errorMessage =
+        error.response?.data?.message || "An unexpected error occurred.";
+      toast.error(errorMessage);
     }
   };
+
 
   const handleDeleteTotalParts = async () => {
     try {

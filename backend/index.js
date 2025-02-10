@@ -4,18 +4,33 @@ const cors = require("cors");
 const app = express();
 
 app.use(express.json());
-app.use(cors());
 
+// Configure CORS with specific origin and methods
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Allow requests from this origin
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Allowed methods
+    allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
+    credentials: true, // Allow credentials (if required)
+  })
+);
+
+// Explicitly handle preflight (OPTIONS) requests
+app.options("*", cors());
+
+// Welcome route
 app.get("/", (req, res) => {
   return res.status(200).send({ message: "Welcome" });
 });
 
+// Import and use routes
 const adminRoute = require("./src/Route/AdminRoute");
 app.use(adminRoute);
 
 const partRoutes = require("./src/Route/PartRoute");
 app.use(partRoutes);
 
+// Count management
 let counts = {
   totalPartCount: 0,
   totalPackageCount: 0,
@@ -48,7 +63,7 @@ app.post("/saveCounts", (req, res) => {
   }
 });
 
-// New route to delete total parts count
+// Reset total parts count
 app.post("/deleteTotalParts", (req, res) => {
   try {
     counts.totalPartCount = 0;
@@ -61,7 +76,7 @@ app.post("/deleteTotalParts", (req, res) => {
   }
 });
 
-// New route to delete total packages count
+// Reset total packages count
 app.post("/deleteTotalPackages", (req, res) => {
   try {
     counts.totalPackageCount = 0;
@@ -74,7 +89,7 @@ app.post("/deleteTotalPackages", (req, res) => {
   }
 });
 
-// New route to delete all counts
+// Reset all counts
 app.post("/deleteAllCounts", (req, res) => {
   try {
     counts.totalPartCount = 0;
