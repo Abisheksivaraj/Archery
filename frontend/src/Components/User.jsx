@@ -2,6 +2,101 @@ import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import logoIcon from "../assets/companyLogo.jpg";
+import QRCode from "react-qr-code";
+
+// Separate Label component with corrected props
+const PartLabel = ({ partNo, logoUrl, partName, quantity }) => {
+  const qrCodeValue = JSON.stringify({
+    partNo,
+    partName,
+    quantity,
+  });
+
+  const labelStyle = {
+    width: "100mm",
+    height: "50mm",
+    padding: "6mm",
+    backgroundColor: "white",
+    border: "1px solid #ccc",
+    boxSizing: "border-box",
+    margin: "0 auto",
+    position: "relative",
+    display: "flex",
+    flexDirection: "column",
+  };
+
+  const contentContainerStyle = {
+    width: "100%",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: "2mm",
+    height: "calc(100% - 12mm)", // Account for logo height and padding
+  };
+
+  const textContainerStyle = {
+    width: "70%",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-around",
+    overflow: "hidden",
+  };
+
+  const textStyle = {
+    margin: 0,
+    fontSize: "3.5mm",
+    color: "black",
+    fontWeight: "500",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  };
+
+  const qrCodeContainerStyle = {
+    width: "25%",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  };
+
+  return (
+    <div style={labelStyle} className="print-content">
+      <img
+        src={logoUrl}
+        alt="Company Logo"
+        style={{
+          width: "25mm",
+          height: "10mm",
+          objectFit: "contain",
+          alignSelf: "center",
+        }}
+      />
+
+      <div style={contentContainerStyle}>
+        <div style={textContainerStyle}>
+          <p style={textStyle}>
+            PartName: <strong>{partName}</strong>
+          </p>
+          <p style={textStyle}>
+            PartNo: <strong>{partNo}</strong>
+          </p>
+          <p style={textStyle}>
+            Packing Quantity: <strong>{quantity}</strong>
+          </p>
+        </div>
+
+        <div style={qrCodeContainerStyle}>
+          <QRCode
+            value={qrCodeValue}
+            size={100}
+            level="M"
+            style={{ margin: 0 }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const User = () => {
   const [parts, setParts] = useState([]);
@@ -79,79 +174,44 @@ const User = () => {
     fetchCounts();
   }, []);
 
-  // Print functionality
+  // Handle printing
   const handlePrint = () => {
-    const iframe = document.createElement("iframe");
-    iframe.style.visibility = "hidden";
-    iframe.style.position = "fixed";
-    iframe.style.right = "0";
-    iframe.style.bottom = "0";
-    document.body.appendChild(iframe);
-
-    const printContent = `
-      <!DOCTYPE html>
+    const printWindow = window.open("", "_blank");
+    printWindow.document.write(`
       <html>
         <head>
-          <title>Print Barcode</title>
-          <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"></script>
+          <title>Print Label</title>
           <style>
-            body { 
-              font-family: Arial, sans-serif; 
-              padding: 20px;
+            @page {
+              size: 100mm 50mm;
               margin: 0;
             }
-            .print-container { 
-              text-align: center;
-              max-width: 400px;
-              margin: 0 auto;
+            body {
+              margin: 0;
+              padding: 0;
             }
-            .barcode-container { 
-              margin: 20px 0;
-            }
-            .part-details { 
-              margin-bottom: 20px;
-              text-align: left;
-            }
-            .part-details h2 {
-              text-align: center;
-              margin-bottom: 15px;
+            #print-content {
+              width: 100%;
+              height: 100%;
             }
           </style>
-        </head>
+        </head> 
         <body>
-          <div class="print-container">
-            <div class="part-details">
-              <h2>Part Details</h2>
-              <p><strong>Part No:</strong> ${selectedPartNo}</p>
-              <p><strong>Part Name:</strong> ${selectedPart.partName}</p>
-              <p><strong>Quantity:</strong> ${selectedPart.quantity}</p>
-            </div>
-            <div class="barcode-container">
-              <svg id="barcode"></svg>
-            </div>
+          <div id="print-content">
+            ${document.querySelector(".print-content").outerHTML}
           </div>
           <script>
             window.onload = function() {
-              JsBarcode("#barcode", "${selectedPartNo}", {
-                format: "CODE128",
-                width: 2,
-                height: 100,
-                displayValue: true
-              });
               window.print();
-              setTimeout(function() {
-                window.frameElement.remove();
-              }, 100);
+              window.onafterprint = function() {
+                window.close();
+              };
             };
           </script>
         </body>
       </html>
-    `;
-
-    const iframeDoc = iframe.contentWindow.document;
-    iframeDoc.open();
-    iframeDoc.write(printContent);
-    iframeDoc.close();
+    `);
+    printWindow.document.close();
   };
 
   // Handle part number change
@@ -190,7 +250,7 @@ const User = () => {
     checkStatus(selectedPartNo, value);
   };
 
-  // Check status and handle printing
+  // Check status
   const checkStatus = (partNoValue, scanQuantityValue) => {
     if (String(partNoValue).trim() === String(scanQuantityValue).trim()) {
       setStatus("PASS ✅");
@@ -224,26 +284,39 @@ const User = () => {
     }
   };
 
-  // Handle delete functionality
-  const handleDelete = async () => {
+  // Modify just the handleDelete function within the User component:
+
+  const handleDelete = async (type) => {
     try {
-      if (deleteType === "parts") {
+      if (type === "parts") {
         await axios.post("http://localhost:5555/deleteTotalParts");
         setTotalPartCount(0);
+        setDeleteType("");
+        // Fetch updated counts after deletion
+        const response = await axios.get("http://localhost:5555/getCounts");
+        if (response.data) {
+          setTotalPartCount(response.data.totalPartCount || 0);
+        }
         toast.success("Total parts count reset successfully");
-      } else if (deleteType === "packages") {
+      } else if (type === "packages") {
         await axios.post("http://localhost:5555/deleteTotalPackages");
         setTotalPackageCount(0);
+        setDeleteType("");
+        // Fetch updated counts after deletion
+        const response = await axios.get("http://localhost:5555/getCounts");
+        if (response.data) {
+          setTotalPackageCount(response.data.totalPackageCount || 0);
+        }
         toast.success("Total packages count reset successfully");
       }
-      setDeleteType("");
     } catch (error) {
-      toast.error(`Error resetting ${deleteType} count`);
+      console.error("Error in deletion:", error);
+      toast.error(`Error resetting ${type} count`);
     }
   };
 
   return (
-    <div className="p-8 bg-gray-900 min-h-screen text-white">
+    <div className="p-4 bg-gray-900 min-h-screen text-white">
       <div className="flex justify-start mb-6">
         <img
           src={logoIcon}
@@ -251,42 +324,57 @@ const User = () => {
           className="md:w-[10rem] md:h-[2rem] lg:w-[16rem] lg:h-[4rem]"
         />
       </div>
+      <div style={{ display: "none" }}>
+        <PartLabel
+          partNo={selectedPartNo}
+          logoUrl={logoIcon}
+          partName={selectedPart.partName}
+          quantity={selectedPart.quantity}
+        />
+      </div>
+
       <div className="max-w-6xl mx-auto space-y-8 backdrop-blur-lg bg-gray-800/50 rounded-lg p-8">
         <h1 className="text-4xl font-bold text-center text-blue-400">
           🗂️ Part Management System
         </h1>
+        <div className=" bg-gray-700/50 p-6 rounded-lg shadow-lg">
+          <h2 className="text-2xl font-semibold text-blue-400 mb-6">
+            ⚙️ Part Details
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 ">
+            <div>
+              <label className="block text-sm font-medium mb-2">Part No</label>
+              <select
+                value={selectedPartNo}
+                onChange={handlePartNoChange}
+                className="w-full bg-gray-900/60 p-3 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select Part No</option>
+                {parts.map((part) => (
+                  <option key={part._id} value={part.partNo}>
+                    {part.partNo}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-gray-700/50 p-6 rounded-lg shadow-lg">
-          <div>
-            <label className="block text-sm font-medium mb-2">Part No</label>
-            <select
-              value={selectedPartNo}
-              onChange={handlePartNoChange}
-              className="w-full bg-gray-900/60 p-3 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Select Part No</option>
-              {parts.map((part) => (
-                <option key={part._id} value={part.partNo}>
-                  {part.partNo}
-                </option>
-              ))}
-            </select>
-          </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Part Name
+              </label>
+              <input
+                type="text"
+                value={selectedPart.partName}
+                readOnly
+                className="w-full bg-gray-900/60 p-3 rounded-lg border border-gray-600 focus:outline-none"
+              />
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-2">Part Name</label>
-            <input
-              type="text"
-              value={selectedPart.partName}
-              readOnly
-              className="w-full bg-gray-900/60 p-3 rounded-lg border border-gray-600 focus:outline-none"
-            />
-          </div>
-
-          <div className="flex flex-col items-center">
-            <h4 className="text-sm font-medium mb-2">Production Quantity</h4>
-            <div className="bg-[gray] text-white py-4 px-6 rounded-lg text-2xl font-bold shadow-inner">
-              {selectedPart.quantity || "0"}
+            <div className="flex flex-col items-center">
+              <h4 className="text-sm font-medium mb-2">Production Quantity</h4>
+              <div className="bg-gray-500 text-white py-4 px-6 rounded-lg text-2xl font-bold shadow-inner">
+                {selectedPart.quantity || "0"}
+              </div>
             </div>
           </div>
         </div>
